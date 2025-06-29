@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Sewa Mobil - RenBil</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .sewa-container {
+            max-width: 400px;
+            margin: 60px auto;
+            background: #fff;
+            padding: 32px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+            text-align: center;
+        }
+        .sewa-container h2 {
+            color: #003366;
+            margin-bottom: 18px;
+        }
+        .sewa-container label {
+            display: block;
+            margin: 18px 0 8px 0;
+            color: #333;
+        }
+        .sewa-container input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 1em;
+        }
+        .sewa-container .total {
+            margin-top: 24px;
+            font-size: 1.3em;
+            color: #FF5733;
+            font-weight: bold;
+        }
+        .sewa-container .button {
+            margin-top: 24px;
+            padding: 12px 28px;
+            background: #003366;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .sewa-container .button:hover {
+            background: #FF5733;
+        }
+    </style>
+</head>
+<body>
+    <div class="sewa-container">
+        <h2 id="judulMobil">Sewa Mobil</h2>
+        <form id="formSewa">
+            <label for="hari">Lama Sewa (hari)</label>
+            <input type="number" id="hari" name="hari" min="1" value="1" required>
+            <div class="total" id="totalHarga">Total: Rp 0</div>
+            <button type="submit" class="button">Pesan Sekarang</button>
+        </form>
+        <a href="mobil.html" class="button" style="background:#FF5733; margin-top:16px;">Kembali ke Daftar Mobil</a>
+    </div>
+    <script>
+        // CEK LOGIN
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            alert('Anda harus login terlebih dahulu untuk memesan mobil.');
+            window.location.href = 'index.html';
+        }
+
+        // Ambil parameter dari URL
+        const params = new URLSearchParams(window.location.search);
+        const namaMobil = params.get('mobil') || 'Mobil';
+        const hargaPerHari = parseInt(params.get('harga')) || 0;
+
+        document.getElementById('judulMobil').textContent = 'Sewa ' + namaMobil;
+
+        function formatRupiah(angka) {
+            return 'Rp ' + angka.toLocaleString('id-ID');
+        }
+
+        function updateTotal() {
+            const hari = parseInt(document.getElementById('hari').value) || 1;
+            const total = hargaPerHari * hari;
+            document.getElementById('totalHarga').textContent = 'Total: ' + formatRupiah(total);
+        }
+
+        document.getElementById('hari').addEventListener('input', updateTotal);
+
+        // Inisialisasi total harga
+        updateTotal();
+
+        // Animasi konfirmasi booking
+        document.getElementById('formSewa').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const hari = document.getElementById('hari').value;
+            const customer = localStorage.getItem('customerName') || 'Customer';
+            const total = document.getElementById('totalHarga').textContent.replace('Total: ', '');
+
+            // Sembunyikan form, tampilkan animasi konfirmasi
+            document.getElementById('formSewa').style.display = 'none';
+
+            // Buat elemen animasi konfirmasi
+            const konfirmasi = document.createElement('div');
+            konfirmasi.innerHTML = `
+                <div style="animation:bounceIn 0.8s; margin-top:30px;">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" style="margin-bottom:16px;">
+                        <circle cx="12" cy="12" r="12" fill="#28a745"/>
+                        <path d="M7 13l3 3 7-7" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <h3 style="color:#28a745;">Berhasil di Booking!</h3>
+                    <p>Terima kasih, <b>${customer}</b>.<br>
+                    Pemesanan <b>${namaMobil}</b> untuk <b>${hari} hari</b> telah berhasil.<br>
+                    Total bayar: <b>${total}</b></p>
+                    <p style="margin-top:18px;">Silakan ambil kunci mobil di <b>Loket Pengambilan Kunci</b>.<br>
+                    Lihat lokasi di bawah ini:</p>
+                    <div style="margin:18px 0;">
+                        <iframe
+                            src="https://www.google.com/maps?q=politeknik+negeri+malang&output=embed"
+                            width="100%" height="220" style="border:0; border-radius:8px;" allowfullscreen="" loading="lazy"></iframe>
+                    </div>
+                    <a href="home.html" class="button" style="background:#003366;">Kembali ke Home</a>
+                </div>
+                <style>
+                    @keyframes bounceIn {
+                        0% { transform: scale(0.5); opacity:0; }
+                        60% { transform: scale(1.1); opacity:1; }
+                        100% { transform: scale(1); }
+                    }
+                </style>
+            `;
+            document.querySelector('.sewa-container').appendChild(konfirmasi);
+        });
+    </script>
+</body>
+</html>

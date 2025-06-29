@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Mobil - RenBil</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .mobil-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 32px;
+            justify-content: center;
+            margin: 40px 0;
+        }
+        .mobil-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            width: 280px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .mobil-card:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.13);
+        }
+        .mobil-card img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            background: #eee;
+        }
+        .mobil-card h3 {
+            margin-bottom: 8px;
+            color: #003366;
+        }
+        .mobil-card .harga {
+            color: #FF5733;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+        .mobil-card .button {
+            padding: 10px 24px;
+            background: #003366;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .mobil-card .button:hover {
+            background: #FF5733;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <h1>RenBil</h1>
+            <ul>
+                <li><a href="home.html">Home</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div id="adminBar" style="text-align:center; margin-bottom:20px; display:none;">
+            <a href="admin.html" class="button" style="background:#FF5733;">Kembali ke Dashboard Admin</a>
+        </div>
+        <h2 style="text-align:center; margin-top:32px; color:#003366;">Daftar Mobil Tersedia</h2>
+        <div class="mobil-list"></div>
+    </main>
+    <footer>
+        <p style="text-align:center; padding:20px; background:#003366; color:#fff; margin-top:32px;">
+            © 2025 RenBil Danur. All rights reserved.
+        </p>
+    </footer>
+    <script>
+        // Data mobil default
+        const defaultMobils = [
+            {
+                nama: "Toyota Avanza",
+                harga: 350000,
+                foto: "images/avanza.avif"
+            },
+            {
+                nama: "Toyota Innova",
+                harga: 500000,
+                foto: "images/innova.jpg"
+            },
+            {
+                nama: "Honda Brio",
+                harga: 300000,
+                foto: "images/brio.jpg"
+            },
+            {
+                nama: "Toyota Fortuner",
+                harga: 900000,
+                foto: "images/fortuner.jpg"
+            }
+        ];
+
+        // Ambil data mobil dari localStorage, jika kosong pakai default
+        function getMobils() {
+            let mobils = JSON.parse(localStorage.getItem('mobils') || '[]');
+            if (mobils.length === 0) {
+                mobils = defaultMobils;
+            }
+            return mobils;
+        }
+
+        // Cek apakah admin login
+        const isAdmin = localStorage.getItem('isLoggedIn') === 'true' && localStorage.getItem('admin') === 'true';
+
+        // Tampilkan tombol kembali ke dashboard admin jika admin login
+        if (isAdmin) {
+            document.getElementById('adminBar').style.display = 'block';
+        }
+
+        // Render mobil ke halaman, dengan tombol edit jika admin
+        function renderMobils() {
+            const mobils = getMobils();
+            const list = document.querySelector('.mobil-list');
+            list.innerHTML = '';
+            mobils.forEach((m, idx) => {
+                list.innerHTML += `
+                    <div class="mobil-card" id="mobil-${idx}">
+                        <img src="${m.foto}" alt="${m.nama}">
+                        <h3>${m.nama}</h3>
+                        <div class="harga">Rp ${parseInt(m.harga).toLocaleString('id-ID')} / hari</div>
+                        <a href="sewa.html?mobil=${encodeURIComponent(m.nama)}&harga=${m.harga}" class="button">Sewa Sekarang</a>
+                        ${isAdmin ? `<button class="button" style="margin-top:10px;background:#28a745;" onclick="showEditForm(${idx})">Edit</button>` : ''}
+                        <div id="editForm-${idx}"></div>
+                    </div>
+                `;
+            });
+        }
+        renderMobils();
+
+        // Fungsi tampilkan form edit
+        window.showEditForm = function(idx) {
+            const mobils = getMobils();
+            const m = mobils[idx];
+            const formDiv = document.getElementById(`editForm-${idx}`);
+            formDiv.innerHTML = `
+                <form id="formEdit-${idx}" style="margin-top:12px; background:#f4f4f4; padding:10px; border-radius:8px;">
+                    <input type="text" id="editNama-${idx}" value="${m.nama}" placeholder="Nama Mobil" required style="margin-bottom:6px;width:90%;">
+                    <input type="number" id="editHarga-${idx}" value="${m.harga}" placeholder="Harga Sewa" required style="margin-bottom:6px;width:90%;">
+                    <input type="file" id="editFoto-${idx}" accept="image/*" style="margin-bottom:6px;width:90%;">
+                    <button type="submit" class="button" style="background:#003366;">Simpan</button>
+                    <button type="button" class="button" style="background:#FF5733;" onclick="hideEditForm(${idx})">Batal</button>
+                    <div id="editMsg-${idx}" style="color:#FF5733; margin-top:6px;"></div>
+                </form>
+            `;
+            document.getElementById(`formEdit-${idx}`).onsubmit = function(e) {
+                e.preventDefault();
+                const nama = document.getElementById(`editNama-${idx}`).value.trim();
+                const harga = document.getElementById(`editHarga-${idx}`).value.trim();
+                const fotoInput = document.getElementById(`editFoto-${idx}`);
+                if (!nama || !harga) {
+                    document.getElementById(`editMsg-${idx}`).textContent = 'Nama dan harga wajib diisi!';
+                    return;
+                }
+                // Jika ada file baru, update foto
+                if (fotoInput.files && fotoInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        mobils[idx] = { nama, harga, foto: evt.target.result };
+                        localStorage.setItem('mobils', JSON.stringify(mobils));
+                        renderMobils();
+                    };
+                    reader.readAsDataURL(fotoInput.files[0]);
+                } else {
+                    mobils[idx] = { nama, harga, foto: m.foto };
+                    localStorage.setItem('mobils', JSON.stringify(mobils));
+                    renderMobils();
+                }
+            };
+        };
+
+        // Fungsi sembunyikan form edit
+        window.hideEditForm = function(idx) {
+            document.getElementById(`editForm-${idx}`).innerHTML = '';
+        };
+    </script>
+</body>
+</html>

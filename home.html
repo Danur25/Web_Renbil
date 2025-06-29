@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>RenBil</title>
+    <style>
+        .hero {
+            background: url('images/logo renbil.jpg') no-repeat center center/cover;
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+        .login-links {
+            margin-top: 30px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+        .login-links a {
+            padding: 12px 28px;
+            background: #003366;
+            color: #fff;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .login-links a:hover {
+            background: #FF5733;
+        }
+        .hero-card {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .highlight {
+            color: #FF5733;
+            font-weight: bold;
+        }
+        .desc {
+            display: block;
+            margin-top: 10px;
+            font-size: 1.2em;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: #fff;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            z-index: 1;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .dropdown-content a {
+            color: #003366;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background 0.2s;
+        }
+        .dropdown-content a:hover {
+            background: #FFECD2;
+            color: #FF5733;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .dropdown > a {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <h1>RenBil</h1>
+            <ul>
+                <li class="dropdown">
+                    <a>Cars</a>
+                    <div class="dropdown-content">
+                        <a href="mobil.html?tipe=avanza">Pilihan Mobil Sewa</a>
+                    </div>
+                </li>
+                <li><a href="index.html" class="button" id="loginBtn">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="hero">
+            <div class="hero-card">
+                <h2>Mau Rental Mobil ???</h2>
+                <p>Di <span class="highlight">RenBil</span> Aja !!!<br>
+                <span class="desc">Rental mobil mudah, cepat, dan terpercaya.</span></p>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>© 2025 RenBil Danur. All rights reserved.</p>
+    </footer>
+    <script>
+// filepath: e:\sim_renbil\home.html
+document.addEventListener('DOMContentLoaded', function() {
+    const loginBtn = document.getElementById('loginBtn');
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+        loginBtn.textContent = 'Logout';
+        loginBtn.href = '#';
+        loginBtn.onclick = function(e) {
+            e.preventDefault();
+            localStorage.removeItem('isLoggedIn');
+            window.location.reload();
+        };
+    } else {
+        loginBtn.textContent = 'Login';
+        loginBtn.href = 'index.html';
+        loginBtn.onclick = null;
+    }
+});
+</script>
+</body>
+</html>

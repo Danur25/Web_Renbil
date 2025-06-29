@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - RenBil</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 32px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+        }
+        .logout-btn {
+            float: right;
+            background: #FF5733;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 20px;
+            cursor: pointer;
+            margin-bottom: 16px;
+        }
+        .admin-section {
+            margin-bottom: 32px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px 8px;
+            text-align: left;
+        }
+        th {
+            background: #003366;
+            color: #fff;
+        }
+        .add-mobil-form input, .add-mobil-form button {
+            margin: 6px 0;
+            padding: 8px;
+            width: 100%;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .add-mobil-form button {
+            background: #003366;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        .add-mobil-form button:hover {
+            background: #FF5733;
+        }
+        .admin-info {
+            color: #28a745;
+            font-weight: bold;
+            margin-bottom: 18px;
+        }
+        .mobil-img-preview {
+            width: 80px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <button class="logout-btn" id="logoutBtn">Logout</button>
+        <div class="admin-info">Anda adalah admin</div>
+        <h2>Dashboard Admin</h2>
+        <div class="admin-section">
+            <h3>Tambah Mobil Baru</h3>
+            <form class="add-mobil-form" id="addMobilForm">
+                <input type="text" id="namaMobil" placeholder="Nama Mobil" required>
+                <input type="number" id="hargaMobil" placeholder="Harga Sewa per Hari (Rp)" required>
+                <input type="file" id="fotoMobil" accept="image/*" required>
+                <button type="submit">Tambah Mobil</button>
+                <div id="addMobilMsg" style="color:#FF5733; margin-top:8px;"></div>
+            </form>
+        </div>
+        <div class="admin-section">
+            <h3>Daftar Mobil</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Foto</th>
+                        <th>Nama Mobil</th>
+                        <th>Harga Sewa</th>
+                    </tr>
+                </thead>
+                <tbody id="mobilTable">
+                    <!-- Data mobil akan muncul di sini -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        // Hanya admin yang bisa akses
+        if (
+            localStorage.getItem('isLoggedIn') !== 'true' ||
+            localStorage.getItem('admin') !== 'true'
+        ) {
+            alert('Akses hanya untuk admin!');
+            window.location.href = 'index.html';
+        }
+
+        // filepath: e:\sim_renbil\mobil.html
+
+        // Data mobil default
+        const defaultMobils = [
+            {
+                nama: "Toyota Avanza",
+                harga: 350000,
+                foto: "images/avanza.avif"
+            },
+            {
+                nama: "Toyota Innova",
+                harga: 500000,
+                foto: "images/innova.jpg"
+            },
+            {
+                nama: "Honda Brio",
+                harga: 300000,
+                foto: "images/brio.jpg"
+            },
+            {
+                nama: "Toyota Fortuner",
+                harga: 900000,
+                foto: "images/fortuner.jpg"
+            }
+        ];
+
+        // Ambil data mobil dari localStorage, gabungkan dengan default jika kosong
+        function getMobils() {
+            let mobils = JSON.parse(localStorage.getItem('mobils') || '[]');
+            if (mobils.length === 0) {
+                mobils = defaultMobils;
+            }
+            return mobils;
+        }
+
+        // Render mobil ke halaman
+        function renderMobils() {
+            const mobils = getMobils();
+            const list = document.querySelector('.mobil-list');
+            list.innerHTML = '';
+            mobils.forEach(m => {
+                list.innerHTML += `
+                    <div class="mobil-card">
+                        <img src="${m.foto}" alt="${m.nama}">
+                        <h3>${m.nama}</h3>
+                        <div class="harga">Rp ${parseInt(m.harga).toLocaleString('id-ID')} / hari</div>
+                        <a href="sewa.html?mobil=${encodeURIComponent(m.nama)}&harga=${m.harga}" class="button">Sewa Sekarang</a>
+                    </div>
+                `;
+            });
+        }
+        renderMobils();
+
+        // Tambah mobil baru
+        document.getElementById('addMobilForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nama = document.getElementById('namaMobil').value.trim();
+            const harga = document.getElementById('hargaMobil').value.trim();
+            const fotoInput = document.getElementById('fotoMobil');
+            const msg = document.getElementById('addMobilMsg');
+            if (!nama || !harga || !fotoInput.files[0]) {
+                msg.textContent = 'Semua field harus diisi!';
+                return;
+            }
+            // Convert foto ke base64
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const mobils = getMobils();
+                mobils.push({
+                    nama: nama,
+                    harga: harga,
+                    foto: evt.target.result
+                });
+                saveMobils(mobils);
+                renderMobils();
+                msg.textContent = 'Mobil berhasil ditambahkan!';
+                document.getElementById('addMobilForm').reset();
+                setTimeout(()=>{msg.textContent='';}, 2000);
+            };
+            reader.readAsDataURL(fotoInput.files[0]);
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').onclick = function() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        };
+    </script>
+</body>
+</html>

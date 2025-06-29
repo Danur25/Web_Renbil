@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login RenBil</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 60px auto;
+            background: #f4f4f4;
+            padding: 32px 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .login-container h2 {
+            margin-bottom: 24px;
+            color: #003366;
+        }
+        .login-container label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 18px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            background: #003366;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .login-container button:hover {
+            background: #FF5733;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login <span id="role-title">Tamu/Admin</span></h2>
+        <form>
+            <label for="username">Username/Email</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">Login</button>
+        </form>
+        <p style="text-align:center; margin-top:16px;">
+            <a href="home.html" style="color:#003366;">Kembali ke Home</a>
+        </p>
+    </div>
+    <script>
+        // Ganti judul sesuai role di query string
+        const params = new URLSearchParams(window.location.search);
+        const role = params.get('role');
+        document.getElementById('role-title').textContent = role === 'admin' ? 'Admin' : 'Tamu';
+    </script>
+</body>
+</html>

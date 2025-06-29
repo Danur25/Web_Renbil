@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login RenBil</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 60px auto;
+            background: #f4f4f4;
+            padding: 32px 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .login-container h2 {
+            margin-bottom: 24px;
+            color: #003366;
+            text-align: center;
+        }
+        .login-container label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 18px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            background: #003366;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .login-container button:hover {
+            background: #FF5733;
+        }
+        .error-msg {
+            color: #FF5733;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .success-msg {
+            color: #28a745;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .toggle-link {
+            color: #FF5733;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2 id="formTitle">Login</h2>
+        <form id="loginForm">
+            <div id="loginMsg" class="error-msg"></div>
+            <label for="loginEmail">Email</label>
+            <input type="email" id="loginEmail" name="loginEmail" placeholder="Email" required>
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" name="loginPassword" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+        <form id="registerForm" style="display:none;">
+            <div id="registerMsg" class="error-msg"></div>
+            <label for="regNama">Nama</label>
+            <input type="text" id="regNama" name="regNama" placeholder="Nama Lengkap" required>
+            <label for="regEmail">Email</label>
+            <input type="email" id="regEmail" name="regEmail" placeholder="Email" required>
+            <label for="regPassword">Password</label>
+            <input type="password" id="regPassword" name="regPassword" placeholder="Password" required>
+            <label for="regHp">Nomor HP</label>
+            <input type="tel" id="regHp" name="regHp" placeholder="Nomor HP" required pattern="[0-9]{10,15}">
+            <button type="submit">Daftar</button>
+        </form>
+        <p style="text-align:center; margin-top:16px;">
+            <span id="toggleToRegister" class="toggle-link">Belum punya akun? Daftar di sini</span>
+            <span id="toggleToLogin" class="toggle-link" style="display:none;">Sudah punya akun? Login di sini</span>
+        </p>
+        <p style="text-align:center; margin-top:8px;">
+            <a href="home.html" style="color:#003366;">Kembali ke Home</a>
+        </p>
+    </div>
+    <script>
+        // Toggle form login/daftar
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const toggleToRegister = document.getElementById('toggleToRegister');
+        const toggleToLogin = document.getElementById('toggleToLogin');
+        const formTitle = document.getElementById('formTitle');
+        toggleToRegister.onclick = function() {
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'block';
+            toggleToRegister.style.display = 'none';
+            toggleToLogin.style.display = 'inline';
+            formTitle.textContent = 'Daftar Akun';
+            document.getElementById('loginMsg').textContent = '';
+        };
+        toggleToLogin.onclick = function() {
+            loginForm.style.display = 'block';
+            registerForm.style.display = 'none';
+            toggleToRegister.style.display = 'inline';
+            toggleToLogin.style.display = 'none';
+            formTitle.textContent = 'Login';
+            document.getElementById('registerMsg').textContent = '';
+        };
+
+        // Login logic
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const msg = document.getElementById('loginMsg');
+            msg.className = 'error-msg';
+            // Admin login
+            if (email === 'admin123@gmail.com' && password === '1234') {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('admin', 'true');
+                window.location.href = 'admin.html';
+                return;
+            }
+            // Customer login
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const user = users.find(u => u.email === email && u.password === password);
+            if (user) {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.removeItem('admin');
+                localStorage.setItem('customerName', user.email);
+                window.location.href = 'home.html';
+            } else {
+                msg.textContent = 'Email atau password salah!';
+            }
+        });
+
+        // Register logic
+        registerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nama = document.getElementById('regNama').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+            const hp = document.getElementById('regHp').value.trim();
+            const msg = document.getElementById('registerMsg');
+            msg.className = 'error-msg';
+            if(nama === '' || email === '' || password === '' || hp === '') {
+                msg.textContent = 'Semua field harus diisi!';
+            } else if (!/^[0-9]{10,15}$/.test(hp)) {
+                msg.textContent = 'Nomor HP harus 10-15 digit angka!';
+            } else {
+                // Simpan akun customer ke localStorage
+                let users = JSON.parse(localStorage.getItem('users') || '[]');
+                if (users.find(u => u.email === email)) {
+                    msg.textContent = 'Email sudah terdaftar!';
+                    return;
+                }
+                users.push({ nama, email, password, hp });
+                localStorage.setItem('users', JSON.stringify(users));
+                msg.className = 'success-msg';
+                msg.textContent = 'Pendaftaran berhasil! Silakan login.';
+                setTimeout(() => {
+                    toggleToLogin.click();
+                }, 1200);
+            }
+        });
+    </script>
+</body>
+</html>
