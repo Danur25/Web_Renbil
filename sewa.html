@@ -100,41 +100,10 @@
             e.preventDefault();
             const hari = document.getElementById('hari').value;
             const customer = localStorage.getItem('customerName') || 'Customer';
-            const total = document.getElementById('totalHarga').textContent.replace('Total: ', '');
+            const total = hargaPerHari * hari;
 
-            // Sembunyikan form, tampilkan animasi konfirmasi
-            document.getElementById('formSewa').style.display = 'none';
-
-            // Buat elemen animasi konfirmasi
-            const konfirmasi = document.createElement('div');
-            konfirmasi.innerHTML = `
-                <div style="animation:bounceIn 0.8s; margin-top:30px;">
-                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" style="margin-bottom:16px;">
-                        <circle cx="12" cy="12" r="12" fill="#28a745"/>
-                        <path d="M7 13l3 3 7-7" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <h3 style="color:#28a745;">Berhasil di Booking!</h3>
-                    <p>Terima kasih, <b>${customer}</b>.<br>
-                    Pemesanan <b>${namaMobil}</b> untuk <b>${hari} hari</b> telah berhasil.<br>
-                    Total bayar: <b>${total}</b></p>
-                    <p style="margin-top:18px;">Silakan ambil kunci mobil di <b>Loket Pengambilan Kunci</b>.<br>
-                    Lihat lokasi di bawah ini:</p>
-                    <div style="margin:18px 0;">
-                        <iframe
-                            src="https://www.google.com/maps?q=politeknik+negeri+malang&output=embed"
-                            width="100%" height="220" style="border:0; border-radius:8px;" allowfullscreen="" loading="lazy"></iframe>
-                    </div>
-                    <a href="home.html" class="button" style="background:#003366;">Kembali ke Home</a>
-                </div>
-                <style>
-                    @keyframes bounceIn {
-                        0% { transform: scale(0.5); opacity:0; }
-                        60% { transform: scale(1.1); opacity:1; }
-                        100% { transform: scale(1); }
-                    }
-                </style>
-            `;
-            document.querySelector('.sewa-container').appendChild(konfirmasi);
+            // Redirect ke halaman pembayaran dengan parameter booking
+            window.location.href = `pembayaran.html?mobil=${encodeURIComponent(namaMobil)}&harga=${hargaPerHari}&hari=${hari}&customer=${encodeURIComponent(customer)}`;
         });
     </script>
 </body>
